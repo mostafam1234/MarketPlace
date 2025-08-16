@@ -18,9 +18,12 @@ namespace Infrastructure
     {
         public static IServiceCollection AddDataBase(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<MarketPlaceContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
-            );
+            services.AddDbContext<MarketPlaceContext>((sp, options) =>
+            {
+                var tenantProvider = sp.GetRequiredService<Infrastructure.Services.TenantProvider>();
+                var connectionString = tenantProvider.GetConnectionString().GetAwaiter().GetResult();
+                options.UseNpgsql(connectionString);
+            });
 
             services.AddDbContextFactory<IdentityContext>(options =>
            options.UseNpgsql(configuration.GetConnectionString("IdentityConnection")));

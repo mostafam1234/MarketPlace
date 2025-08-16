@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Domain.Interfaces;
+using Domain.Interfaces.IServiceManager;
 
 namespace IMarketplace.API.Controllers
 {
@@ -28,6 +31,34 @@ namespace IMarketplace.API.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+
+        [HttpGet("authenticated")]
+        [Authorize]
+        public IActionResult GetAuthenticated([FromServices] IUserSessionProvider userSession)
+        {
+            return Ok(new
+            {
+                Message = "You are authenticated!",
+                UserId = userSession.UserId,
+                TenantId = userSession.TenantId,
+                Email = userSession.Email,
+                Role = userSession.Role,
+                IsAuthenticated = User.Identity?.IsAuthenticated,
+                UserName = User.Identity?.Name,
+                Claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList()
+            });
+        }
+
+        [HttpGet("public")]
+        public IActionResult GetPublic()
+        {
+            return Ok(new
+            {
+                Message = "This is a public endpoint",
+                IsAuthenticated = User.Identity?.IsAuthenticated,
+                UserName = User.Identity?.Name
+            });
         }
     }
 }

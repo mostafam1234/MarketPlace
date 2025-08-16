@@ -26,10 +26,13 @@ namespace Infrastructure.Services
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user is null) throw new UnAuthorizedException("Invalid Login");
-            //var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true);
-            //if (result.IsNotAllowed) throw new UnAuthorizedException("Account not comfirmed yet");
-            //if (result.IsLockedOut) throw new UnAuthorizedException("Account is locked.");
-            //if (!result.Succeeded) throw new UnAuthorizedException("Invalid Login");
+            
+            // Uncomment password validation
+            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true);
+            if (result.IsNotAllowed) throw new UnAuthorizedException("Account not confirmed yet");
+            if (result.IsLockedOut) throw new UnAuthorizedException("Account is locked.");
+            if (!result.Succeeded) throw new UnAuthorizedException("Invalid Login");
+            
             var response = new UserDto()
             {
                 Id = user.Id,
@@ -38,7 +41,6 @@ namespace Infrastructure.Services
                 Token = await GenerateTokenAsync(user),
             };
             return response;
-
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto model)
@@ -87,7 +89,7 @@ namespace Infrastructure.Services
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: authClaims,
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: credentials
             );
 

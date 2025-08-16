@@ -1,0 +1,37 @@
+### Test Authentication Flow
+
+### 1. Register a new user
+POST {{baseUrl}}/api/TestAuth/register
+Content-Type: application/json
+
+{
+  "displayName": "Test User",
+  "email": "test@example.com",
+  "userName": "testuser",
+  "phoneNumber": "1234567890",
+  "password": "Test123!"
+}
+
+### 2. Login with the user
+POST {{baseUrl}}/api/TestAuth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!"
+}
+
+### 3. Test public endpoint (no auth required)
+GET {{baseUrl}}/WeatherForecast/public
+
+### 4. Test authenticated endpoint (copy token from login response)
+GET {{baseUrl}}/api/TestAuth/test-auth
+Authorization: Bearer {{authToken}}
+
+### 5. Test weather forecast authenticated endpoint
+GET {{baseUrl}}/WeatherForecast/authenticated
+Authorization: Bearer {{authToken}}
+
+### Variables
+@baseUrl = https://localhost:7001
+@authToken = YOUR_JWT_TOKEN_HERE 

@@ -9,6 +9,8 @@ namespace Domain.Interfaces
     public interface ICustomUserIdentityDbInitializer
     {
         Task InitializeAsync();
+
+        Task InitializeAsyncForMarketPlace();
         Task SeedAsync();
     }
 }

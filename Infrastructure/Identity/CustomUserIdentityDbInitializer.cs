@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Identity;
 using Domain.Interfaces;
+using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
@@ -12,11 +13,15 @@ namespace Infrastructure.Identity
     {
         private readonly IdentityContext _context;
         private readonly UserManager<CustomUserIdentity> _userManager;
+        private readonly MarketPlaceContext marketPlaceContext;
 
-        public CustomUserIdentityDbInitializer(IdentityContext context, UserManager<CustomUserIdentity> userManager)
+        public CustomUserIdentityDbInitializer(IdentityContext context,
+                                               UserManager<CustomUserIdentity> userManager,
+                                               MarketPlaceContext marketPlaceContext)
         {
             _context = context;
             _userManager = userManager;
+            this.marketPlaceContext = marketPlaceContext;
         }
 
         public async Task InitializeAsync()
@@ -24,6 +29,21 @@ namespace Infrastructure.Identity
             var pendingMigrations = await _context.Database.GetPendingMigrationsAsync();
             if (pendingMigrations.Any())
                 await _context.Database.MigrateAsync();
+        }
+
+        public async Task InitializeAsyncForMarketPlace()
+        {
+            try
+            {
+                var pendingMigrations = await marketPlaceContext.Database.GetPendingMigrationsAsync();
+                if (pendingMigrations.Any())
+                    await marketPlaceContext.Database.MigrateAsync();
+            }
+            catch(Exception ex)
+            {
+
+            }
+           
         }
 
         public async Task SeedAsync()
